@@ -1,4 +1,5 @@
 import "reflect-metadata";
+import "dotenv-safe/config";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import { Post } from './entities/Post';
 import express from "express";
@@ -25,9 +26,7 @@ const main = async () => {
   // const orm = await MikroORM.init(config);
   const connectTypeorm = await createConnection({
     type: 'postgres',
-    database: 'fakereddit2',
-    username: 'postgres',
-    password: 'postgres',
+    url: process.env.POSTGRES_URL,
     logging: true,
     synchronize: true,
     entities: [Post, User, Updoot],
@@ -39,11 +38,11 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
+  const redis = new Redis(process.env.REDIS_URL);
 
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: process.env.CORS_ORGIN,
       credentials: true,
     })
   )
@@ -63,7 +62,7 @@ const main = async () => {
         // secure: __prod__,
       },
       saveUninitialized: false,
-      secret: "random_string",
+      secret: process.env.SESSION_SECRET,
       resave: false,
     })
   );
@@ -84,8 +83,8 @@ const main = async () => {
 
   apolloServer.applyMiddleware({ app, cors: false});
 
-  app.listen(4000, () => {
-    console.log("server started on port 4000");
+  app.listen(process.env.SERVER_PORT, () => {
+    console.log("server started on port " + process.env.SERVER_PORT);
   });
 
   // const post = orm.em.create(Post, {title: "Test post title"});

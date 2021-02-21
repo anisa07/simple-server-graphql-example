@@ -186,7 +186,7 @@ export class UserResolver {
     await redis.set(FORGET_PASSWORD_PREFIX + token, user.id, 'ex', 36000 * 24);
 
     await sendEmail(user.email, 
-      `<a href="http://localhost:3000/change-password/${token}">Reset password</a>`
+      `<a href="${process.env.CORS_ORGIN}/change-password/${token}">Reset password</a>`
     );
     
     return true;
